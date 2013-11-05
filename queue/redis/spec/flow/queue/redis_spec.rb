@@ -3,13 +3,17 @@ require 'spec_helper'
 describe Flow::Queue::Redis do
   let(:count) { double }
   let(:data) {{ foo: :bar }}
+
   before do
     Flow::Queue::Redis.clear :foo
     stub_const 'Flow::Queue::ACTIONS', {}
   end
 
   it 'should push messages' do
-    Flow.queue_route(:somewhere).trigger :insert, foo: :bar
+    Flow
+      .queue_route(:somewhere)
+      .trigger :insert, foo: :bar
+
     Flow::Queue::Redis.pull(:somewhere).should == {
       action: 'queue_route',
       type:   :insert,

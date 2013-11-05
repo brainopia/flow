@@ -3,6 +3,7 @@ require 'redis'
 
 # TODO: batch mode via lua script with brpoplpush and subsequent rpoplpush
 # or by bundling more logical tasks in one physical task
+# also benchmark in comparison to sidekiq
 module Flow::Queue::Redis
   extend self, Flow::Queue
   attr_accessor :connection
