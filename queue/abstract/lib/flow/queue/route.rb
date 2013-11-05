@@ -5,14 +5,14 @@ class Flow::Queue::Route < Flow::Action
   end
 
   def transform(type, data)
-    flow.queue_provider.publish @queue, wrap(data)
+    flow.queue_provider.push @queue, wrap(type, data)
     nil
   end
 
   private
 
-  def wrap(data)
-    Flow::Queue::Message.wrap name, data
+  def wrap(type, data)
+    { action: name, type: type, data: data }
   end
 
   def register_queue_action!
