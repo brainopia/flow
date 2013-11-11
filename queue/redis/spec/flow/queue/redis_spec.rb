@@ -3,18 +3,20 @@ require 'spec_helper'
 describe Flow::Queue::Redis do
   let(:count) { double }
   let(:data) {{ foo: :bar }}
+  let(:queue_name) { :somewhere }
+  let(:queue) { Flow::Queue::Redis.new queue_name }
 
   before do
-    Flow::Queue::Redis.clear :foo
+    queue.clear
     stub_const 'Flow::Queue::ACTIONS', {}
   end
 
   it 'should push messages' do
     Flow
-      .queue_route(:somewhere)
+      .queue_route(queue_name)
       .trigger :insert, foo: :bar
 
-    Flow::Queue::Redis.pull(:somewhere).should == {
+    queue.pull.should == {
       action: 'queue_route',
       type:   :insert,
       data:   { foo: :bar }
@@ -25,10 +27,10 @@ describe Flow::Queue::Redis do
     count.should_receive(:after_route).once
 
     Flow
-      .queue_route(:somewhere)
+      .queue_route(queue_name)
       .check {|it| it.should == data; count.after_route }
       .trigger_root :insert, data
 
-    Flow::Queue::Redis.handle_once :somewhere
+    queue.pull_and_propagate
   end
 end

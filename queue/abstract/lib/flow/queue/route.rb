@@ -1,11 +1,13 @@
 class Flow::Queue::Route < Flow::Action
+  attr_reader :queue
+
   def setup!(queue)
-    @queue = queue
+    @queue = flow.queue_provider.new queue
     register_queue_action!
   end
 
   def transform(type, data)
-    flow.queue_provider.push @queue, wrap(type, data)
+    @queue.push wrap(type, data)
     nil
   end
 

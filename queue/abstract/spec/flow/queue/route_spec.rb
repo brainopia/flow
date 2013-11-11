@@ -17,8 +17,8 @@ describe Flow::Queue::Route do
   end
 
   it 'should deliver data to queue' do
-    message = { action: 'queue_route', data: { foo: :bar }}
-    redis.should_receive(:push).with :somewhere, message
+    message = { action: 'queue_route', type: :insert, data: { foo: :bar }}
+    flow.action.queue.should_receive(:push).with message
     flow.trigger_root :insert, message[:data]
   end
 
