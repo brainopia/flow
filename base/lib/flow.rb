@@ -2,15 +2,17 @@ require 'forwardable'
 
 class Flow
   DEFAULT_ARGUMENT = :default_argument
-  DEFAULT_DIRECTIVES = {}
 
   class << self
     include SingleForwardable
-    attr_accessor :logger # TODO: turn into directive
+
+    def default
+      new
+    end
 
     # hook to extend flow with additional actions
     def action(klass)
-      def_delegator :new, klass.action_name
+      def_delegator :default, klass.action_name
       define_method klass.action_name do |*args, &block|
         new_action = klass.new self, action
         directives.values.each {|it| it.setup! new_action }
@@ -23,20 +25,15 @@ class Flow
     # hook to propagate settings across flow
     def directive(klass)
       name = klass.directive_name
-      DEFAULT_DIRECTIVES[name] = klass.new
-      def_delegator :new, klass.directive_name
+      def_delegator :default, klass.directive_name
 
       define_method name do |value=DEFAULT_ARGUMENT|
         if value == DEFAULT_ARGUMENT
-          directives[name].get
+          directive_for(name, klass).get
         else
-          new_flow = clone
-          new_directives = new_flow.directives.dup
-          new_directive = new_directives[name].dup
-          new_directive.set value
-          new_directives[name] = new_directive
-          new_flow.directives = new_directives
-          new_flow
+          clone.tap do |it|
+            it.directives[name] = it.directive_for(name, klass).reset value
+          end
         end
       end
     end
@@ -46,6 +43,7 @@ class Flow
   require_relative 'flow/error'
   require_relative 'flow/directive'
   require_relative 'flow/directives/label'
+  require_relative 'flow/directives/logger'
   require_relative 'flow/action'
   require_relative 'flow/actions/derive'
   require_relative 'flow/actions/check'
@@ -55,7 +53,11 @@ class Flow
   attr_accessor :action, :directives
 
   def initialize
-    @directives = DEFAULT_DIRECTIVES.dup
+    @directives = {}
+  end
+
+  def initialize_clone(_)
+    @directives = directives.clone
   end
 
   def apply
@@ -72,5 +74,9 @@ class Flow
 
   def clone_with(action)
     clone.tap {|it| it.action = action }
+  end
+
+  def directive_for(name, klass)
+    directives[name] ||= klass.new
   end
 end

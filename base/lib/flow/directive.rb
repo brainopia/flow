@@ -11,4 +11,8 @@ class Flow::Directive
 
   def setup!(action)
   end
+
+  def reset(value)
+    clone.tap {|it| it.set value }
+  end
 end

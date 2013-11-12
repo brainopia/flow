@@ -87,17 +87,16 @@ class Flow::Action
     "#{self.class.name}: #{location} #{name}"
   end
 
-  def improve_name(string)
+  def extend_name(string)
     name << '_' << string if string
   end
 
   private
 
   def log(&block)
-    logger = Flow.logger
-    if logger
-      block.call logger
-      logger.puts "\n"*2
+    if flow.logger
+      block.call flow.logger
+      flow.logger.puts "\n"*2
     end
   end
 

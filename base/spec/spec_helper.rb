@@ -1,5 +1,7 @@
 require 'flow'
 
 if ENV['VERBOSE']
-  Flow.logger = STDOUT
+  def Flow.default
+    new.logger STDOUT
+  end
 end

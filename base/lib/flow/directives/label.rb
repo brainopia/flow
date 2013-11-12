@@ -12,6 +12,6 @@ class Flow::Directive::Label < Flow::Directive
   end
 
   def setup!(action)
-    action.improve_name @label if @label
+    action.extend_name @label if @label
   end
 end
