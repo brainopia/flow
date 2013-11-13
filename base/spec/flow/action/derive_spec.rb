@@ -11,6 +11,6 @@ describe Flow::Action::Derive do
       .check {|data|
         data.should include :modified
         count.in_flow
-      }.trigger_root :insert, {}
+      }.trigger :insert, {}
   end
 end

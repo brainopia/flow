@@ -4,10 +4,6 @@ class Flow::Cassandra::Flag < Flow::Action
 
   LIMIT_HISTORY = 10
 
-  def action_name
-    :flag
-  end
-
   def setup!(name, scope, &condition)
     @flag      = name
     @scope     = Array scope

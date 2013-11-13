@@ -13,13 +13,13 @@ describe Flow::Queue::Route do
   it 'should intercept data' do
     count.should_not_receive(:after_route)
     flow.check { count.after_route }
-    flow.trigger_root :insert, data: true
+    flow.trigger :insert, data: true
   end
 
   it 'should deliver data to queue' do
     message = { action: 'queue_route', type: :insert, data: { foo: :bar }}
     flow.action.queue.should_receive(:push).with message
-    flow.trigger_root :insert, message[:data]
+    flow.trigger :insert, message[:data]
   end
 
   it 'should register action for queue' do

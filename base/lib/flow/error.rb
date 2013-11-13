@@ -8,7 +8,7 @@ class Flow::Error < StandardError
   end
 
   def backtrace
-    @locations + ['(backtrace):0'] + @backtrace
+    @locations + @backtrace
   end
 
   def prepend_location(location)
@@ -18,6 +18,6 @@ class Flow::Error < StandardError
   private
 
   def format(location)
-    './' + location
+    "(flow: #{location})"
   end
 end

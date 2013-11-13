@@ -14,8 +14,8 @@ describe Flow::Action::IfMatch do
           data.should include(:foo)
         end
 
-      flow.trigger_root :insert, bar: true
-      flow.trigger_root :insert, foo: true
+      flow.trigger :insert, bar: true
+      flow.trigger :insert, foo: true
     end
 
     it 'should filter records with specified value' do
@@ -28,8 +28,8 @@ describe Flow::Action::IfMatch do
           data.should include foo: false
         end
 
-      flow.trigger_root :insert, foo: true
-      flow.trigger_root :insert, foo: false
+      flow.trigger :insert, foo: true
+      flow.trigger :insert, foo: false
     end
 
     it 'should filter records with specified values' do
@@ -39,9 +39,9 @@ describe Flow::Action::IfMatch do
         .if_match(:foo, [false, 'bar'])
         .check { count.in_flow }
 
-      flow.trigger_root :insert, foo: false
-      flow.trigger_root :insert, foo: true
-      flow.trigger_root :insert, foo: 'bar'
+      flow.trigger :insert, foo: false
+      flow.trigger :insert, foo: true
+      flow.trigger :insert, foo: 'bar'
     end
   end
 
@@ -58,8 +58,8 @@ describe Flow::Action::IfMatch do
           end
         }.check { count.in_flow }
 
-      flow.trigger_root :insert, bar: true
-      flow.trigger_root :insert, foo: true
+      flow.trigger :insert, bar: true
+      flow.trigger :insert, foo: true
     end
 
     it 'should filter records with specified value' do
@@ -74,8 +74,8 @@ describe Flow::Action::IfMatch do
           end
         }.check { count.in_flow }
 
-      flow.trigger_root :insert, foo: 'moo'
-      flow.trigger_root :insert, foo: 'bar'
+      flow.trigger :insert, foo: 'moo'
+      flow.trigger :insert, foo: 'bar'
     end
   end
 end

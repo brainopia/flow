@@ -45,8 +45,9 @@ class Flow
   require_relative 'flow/directives/label'
   require_relative 'flow/directives/logger'
   require_relative 'flow/action'
-  require_relative 'flow/actions/derive'
   require_relative 'flow/actions/check'
+  require_relative 'flow/actions/store'
+  require_relative 'flow/actions/derive'
   require_relative 'flow/actions/if_match'
   require_relative 'flow/actions/unless_match'
 
@@ -65,10 +66,6 @@ class Flow
   end
 
   def trigger(type, data)
-    action.propagate type, data
-  end
-
-  def trigger_root(type, data)
     action.root.propagate type, data
   end
 

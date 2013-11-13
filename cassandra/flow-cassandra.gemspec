@@ -1,6 +1,6 @@
 Gem::Specification.new do |spec|
-  spec.name         = 'flow-cassandra'
-  spec.version      = '0.1'
+  gem.name          = 'flow-cassandra'
+  gem.version       = '0.1'
   gem.authors       = 'brainopia'
   gem.email         = 'brainopia@evilmartians.com'
   gem.homepage      = 'https://github.com/brainopia/flow'
