@@ -7,7 +7,7 @@ describe Flow::Cassandra::Flag do
       .cassandra_keyspace(:flow)
       .cassandra_flag(:youngest, :gender) {|current, previous|
         current[:age] < previous[:age] }
-      .store(storage)
+      .store storage
   end
 
   def male(age)
@@ -22,12 +22,21 @@ describe Flow::Cassandra::Flag do
     person.merge(youngest: true)
   end
 
+  def propagate(type, records)
+    records.each do |record|
+      flow.trigger type, record
+      Flow::Cassandra::ROUTERS.values.each do |router|
+        router.pull_and_propagate Flow::Queue::Redis
+      end
+    end
+  end
+
   def insert(*records)
-    records.each {|it| flow.trigger :insert, it }
+    propagate :insert, records
   end
 
   def remove(*records)
-    records.each {|it| flow.trigger :remove, it }
+    propagate :remove, records
   end
 
   context 'propagate insertion' do

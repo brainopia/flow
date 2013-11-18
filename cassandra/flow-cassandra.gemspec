@@ -11,5 +11,6 @@ Gem::Specification.new do |spec|
 
   gem.add_dependency 'flow-queue'
   gem.add_dependency 'cassandra-mapper'
+  gem.add_dependency 'system-getifaddrs'
   gem.add_development_dependency 'rspec'
 end

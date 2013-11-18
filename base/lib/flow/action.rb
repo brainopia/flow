@@ -88,7 +88,7 @@ class Flow::Action
   end
 
   def extend_name(string)
-    name << '_' << string if string
+    name << '_' << string.to_s
   end
 
   private

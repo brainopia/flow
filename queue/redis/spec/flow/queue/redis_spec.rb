@@ -29,7 +29,7 @@ describe Flow::Queue::Redis do
     Flow
       .queue_route(queue_name)
       .check {|it| it.should == data; count.after_route }
-      .trigger_root :insert, data
+      .trigger :insert, data
 
     queue.pull_and_propagate
   end

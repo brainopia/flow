@@ -18,8 +18,12 @@ class Flow::Queue::Redis < Flow::Queue
     client.lpush name, message
   end
 
-  def pull_raw
-    client.brpop(name).last
+  def pull_raw(blocking: true)
+    if blocking
+      client.brpop(name).last
+    else
+      client.rpop name
+    end
   end
 
   def clear

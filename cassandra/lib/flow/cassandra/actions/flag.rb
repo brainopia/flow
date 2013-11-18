@@ -5,13 +5,14 @@ class Flow::Cassandra::Flag < Flow::Action
   LIMIT_HISTORY = 10
 
   def setup!(name, scope, &condition)
-    @flag      = name
+    @flag      = name or raise ArgumentError
     @scope     = Array scope
     @condition = condition
 
-    extend_name @flag.to_s
+    extend_name @flag
     extend_name @scope.join('_')
     build_catalog
+    prepend_router
   end
 
   def transform(type, data)
@@ -23,11 +24,11 @@ class Flow::Cassandra::Flag < Flow::Action
 
     case type
     when :insert
-      insert(data, scope_value, previous, all)
+      insert data, scope_value, previous, all
     when :remove
-      remove(data, scope_value, previous, all)
+      remove data, scope_value, previous, all
     when :check
-      check(data, scope_value, previous, all)
+      check data, scope_value, previous, all
     else
       raise ArgumentError, "unsupported type: #{type}"
     end
@@ -98,5 +99,9 @@ class Flow::Cassandra::Flag < Flow::Action
       type :data, :marshal
       type :all,  :marshal
     end
+  end
+
+  def key(data)
+    { scope: scope_value_for(data) }
   end
 end

@@ -23,10 +23,12 @@ class Flow::Queue
     loop { pull_and_propagate }
   end
 
-  def pull_and_propagate
-    message = pull
-    action = ACTIONS.fetch message[:action]
-    action.propagate_next message[:type], message[:data]
+  def pull_and_propagate(blocking: true)
+    message = pull blocking: blocking
+    if message
+      action = ACTIONS.fetch message[:action]
+      action.propagate_next message[:type], message[:data]
+    end
   end
 
   def present?
@@ -37,7 +39,8 @@ class Flow::Queue
     push_raw Marshal.dump message
   end
 
-  def pull
-    Marshal.load pull_raw
+  def pull(blocking: true)
+    message = pull_raw blocking: blocking
+    Marshal.load message if message
   end
 end
