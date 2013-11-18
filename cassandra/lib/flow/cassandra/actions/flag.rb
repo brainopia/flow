@@ -1,6 +1,6 @@
 class Flow::Cassandra::Flag < Flow::Action
-  include Flow::Cassandra
   attr_reader :flag, :scope, :condition, :catalog
+  include Flow::Cassandra
 
   LIMIT_HISTORY = 10
 
@@ -19,7 +19,7 @@ class Flow::Cassandra::Flag < Flow::Action
     scope_value = scope_value_for data
 
     record   = catalog.one(scope: scope_value) || {}
-    previous = record[:data]
+    previous = record[:data].freeze
     all      = record[:all] || []
 
     case type
@@ -30,7 +30,7 @@ class Flow::Cassandra::Flag < Flow::Action
     when :check
       check data, scope_value, previous, all
     else
-      raise ArgumentError, "unsupported type: #{type}"
+      raise UnknownType, type
     end
   end
 
@@ -94,7 +94,7 @@ class Flow::Cassandra::Flag < Flow::Action
   end
 
   def build_catalog
-    @catalog = Cassandra::Mapper.new flow.cassandra_keyspace, name do
+    @catalog = Cassandra::Mapper.new keyspace, name do
       key  :scope
       type :data, :marshal
       type :all,  :marshal

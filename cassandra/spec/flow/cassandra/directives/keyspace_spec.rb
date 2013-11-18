@@ -1,8 +1,8 @@
 require 'spec_helper'
 
 describe Flow::Cassandra::Keyspace do
-  it 'should be views by default' do
-    Flow.cassandra_keyspace.should == :views
+  it 'should be flow by default' do
+    Flow.cassandra_keyspace.should == :flow
   end
 
   it 'should be configurable' do

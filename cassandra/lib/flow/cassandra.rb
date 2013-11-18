@@ -9,6 +9,7 @@ module Flow::Cassandra
   require_relative 'cassandra/extensions/token_range'
   require_relative 'cassandra/directives/keyspace'
   require_relative 'cassandra/actions/flag'
+  require_relative 'cassandra/actions/merge'
 
   ROUTERS = Hash.new do |all, keyspace|
     all[keyspace] = Router.new keyspace
@@ -16,6 +17,10 @@ module Flow::Cassandra
 
   def scope_value_for(data)
     [name, scope.map {|it| data[it] }].join('.')
+  end
+
+  def keyspace
+    flow.cassandra_keyspace
   end
 
   def prepend_router

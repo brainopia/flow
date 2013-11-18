@@ -1,4 +1,6 @@
 class Flow::Action
+  UnknownType = Class.new ArgumentError
+
   class << self
     def inherited(klass)
       Flow.action klass

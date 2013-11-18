@@ -1,9 +1,10 @@
 require 'flow/cassandra'
 require 'flow/queue/redis'
+require 'support/propagate_helpers'
 
-if ENV['VERBOSE']
-  def Flow.default
-    new.logger STDOUT
+def Flow.default
+  new.cassandra_keyspace(:flow).apply do |it|
+    ENV['VERBOSE'] ? it.logger(STDOUT) : it
   end
 end
 
@@ -13,6 +14,8 @@ Cassandra::Mapper.env    = :test
 Cassandra::Mapper.force_migrate
 
 RSpec.configure do |config|
+  config.include PropagateHelpers
+
   config.before do
     stub_const 'Flow::Queue::ACTIONS', {}
     Flow::Cassandra::ROUTERS.values.each do |router|
