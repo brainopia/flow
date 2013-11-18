@@ -8,6 +8,7 @@ module Flow::Cassandra
   require_relative 'cassandra/router'
   require_relative 'cassandra/extensions/token_range'
   require_relative 'cassandra/directives/keyspace'
+  require_relative 'cassandra/actions/target'
   require_relative 'cassandra/actions/flag'
   require_relative 'cassandra/actions/merge'
 
