@@ -1,6 +1,6 @@
 class Flow::Cassandra::Merge < Flow::Action
-  attr_reader :scope, :callback, :catalog
   include Flow::Cassandra
+  attr_reader :scope, :callback, :catalog
 
   FIRST_BACKUP = 4
   LAST_BACKUP  = 6

@@ -1,6 +1,6 @@
 class Flow::Cassandra::Flag < Flow::Action
-  attr_reader :flag, :scope, :condition, :catalog
   include Flow::Cassandra
+  attr_reader :flag, :scope, :condition, :catalog
 
   LIMIT_HISTORY = 10
 

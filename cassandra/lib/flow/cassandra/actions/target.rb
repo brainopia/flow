@@ -3,6 +3,7 @@ class Flow::Cassandra::Target < Flow::Action
 
   def setup!(mapper)
     if mapper.is_a? Cassandra::Mapper
+      mapper.action :publisher, self
       @target = mapper
     else
       raise ArgumentError, "bad target: #{mapper}"

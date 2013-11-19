@@ -3,12 +3,17 @@ require 'cassandra/mapper'
 require 'system/getifaddrs'
 
 # TODO: support replay by keeping hash of initial data as id
-# and ignoring events who's already in cache
+# and ignoring events who's already in cache.
+# Also check order of transactional actions, we have to first send remove
+# and only then update catalog because if we'll be stopped mid-action
+# everything will be replayed and we need to replay based on the old catalog entry
 module Flow::Cassandra
   require_relative 'cassandra/router'
+  require_relative 'cassandra/extensions/mapper'
   require_relative 'cassandra/extensions/token_range'
   require_relative 'cassandra/directives/keyspace'
   require_relative 'cassandra/actions/target'
+  require_relative 'cassandra/actions/source'
   require_relative 'cassandra/actions/flag'
   require_relative 'cassandra/actions/merge'
 
