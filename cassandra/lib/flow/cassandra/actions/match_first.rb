@@ -10,51 +10,54 @@ class Flow::Cassandra::MatchFirst < Flow::Action
     build_catalog
     prepend_router
 
-    secondary_flow = source(mapper).derive do |data|
+    secondary_flow = Flow.cassandra_source(mapper).derive do |data|
       data.merge _secondary_: true
     end
 
     # place secondary_flow before router action
-    parents.first.add_parent secondary_flow.action
-
-    # mapper.config.dsl.after_insert do |match|
-    #   key    = select(:key, match)
-    #   subkey = select(:subkey, match)
-
-    #   records = catalog.get key, start: subkey
-
-    #   records.each do |record|
-    #     catalog.remove record
-    #     propagate_next :remove, record[:action_result]
-
-    #     record[:action_result] = callback.call record[:action_data], match
-    #     record.merge! subkey
-
-    #     catalog.insert record
-    #     propagate_next :insert, record[:action_result]
-    #   end
-    # end
-
-    # mapper.config.dsl.after_remove do |match|
-    #   key    = select(:key, match)
-    #   subkey = select(:subkey, match)
-
-    #   records = catalog.get key.merge(subkey)
-    #   records.each do |record|
-    #     catalog.remove record
-    #     propagate_next :remove, record[:action_result]
-    #     match_first :insert, key, record[:action_data]
-    #   end
-    # end
+    # we use one-way relation to signify
+    # that secondary flow is not a root action
+    secondary_flow.action.add_child parents.first
   end
 
   def propagate(type, data)
     key = select(:key, data)
 
-    if key.values.any?(&:nil?)
-      propagate_next type, callback.call(data, nil)
+    if data.delete :_secondary_
+      case type
+      when :insert
+        subkey = select(:subkey, data)
+        records = catalog.get key, start: subkey
+
+        records.each do |record|
+          catalog.remove record
+          propagate_next :remove, record[:action_result]
+
+          record[:action_result] = callback.call record[:action_data], data
+          record.merge! subkey
+
+          catalog.insert record
+          propagate_next :insert, record[:action_result]
+        end
+      when :remove
+        subkey = select(:subkey, data)
+        records = catalog.get key.merge(subkey)
+
+        records.each do |record|
+          catalog.remove record
+          propagate_next :remove, record[:action_result]
+          match_first :insert, key, record[:action_data]
+        end
+      when :check
+      else
+        raise UnknownType, type
+      end
     else
-      match_first type, key, data
+      if key.values.any?(&:nil?)
+        propagate_next type, callback.call(data, nil)
+      else
+        match_first type, key, data
+      end
     end
   end
 
@@ -97,6 +100,10 @@ class Flow::Cassandra::MatchFirst < Flow::Action
     mapper.config.send(key_type).each_with_object({}) do |field, result|
       result[field] = data[field]
     end
+  end
+
+  def key(data)
+    select :key, data
   end
 
   def max_subkey

@@ -55,10 +55,9 @@ class Flow::Action
     end
 
     propagation = ->(it) do
-      it.freeze
       actions.map do |action|
         begin
-          action.propagate type, it
+          action.propagate type, it.dup
         rescue Flow::Error
           $!.prepend_location action.location
           raise

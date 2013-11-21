@@ -16,6 +16,7 @@ module Flow::Cassandra
   require_relative 'cassandra/actions/source'
   require_relative 'cassandra/actions/flag'
   require_relative 'cassandra/actions/merge'
+  require_relative 'cassandra/actions/match_first'
 
   ROUTERS = Hash.new do |all, keyspace|
     all[keyspace] = Router.new keyspace

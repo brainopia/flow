@@ -23,12 +23,12 @@ describe Flow::Cassandra::Flag do
 
   context 'propagate insertion' do
     it 'one record' do
-      insert male(15)
+      insert flow, male(15)
       storage.should == [youngest(male(15))]
     end
 
     it 'several records in increasing order' do
-      insert male(15), male(17), male(19)
+      insert flow, male(15), male(17), male(19)
       storage.should == [
         youngest(male(15)),
         male(17),
@@ -37,7 +37,7 @@ describe Flow::Cassandra::Flag do
     end
 
     it 'several records in mixed order' do
-      insert male(17), male(15), male(19)
+      insert flow, male(17), male(15), male(19)
       storage.should == [
         male(17),
         youngest(male(15)),
@@ -46,7 +46,7 @@ describe Flow::Cassandra::Flag do
     end
 
     it 'records with different scope' do
-      insert male(20), female(19)
+      insert flow, male(20), female(19)
       storage.should == [
         youngest(male(20)),
         youngest(female(19))
@@ -56,14 +56,14 @@ describe Flow::Cassandra::Flag do
 
   context 'propagate removal' do
     it 'one record' do
-      insert female(20)
-      remove female(20)
+      insert flow, female(20)
+      remove flow, female(20)
       storage.should be_empty
     end
 
     it 'several records with one scope' do
-      insert female(20), female(15), female(17)
-      remove female(15)
+      insert flow, female(20), female(15), female(17)
+      remove flow, female(15)
       storage.should == [
         female(20),
         youngest(female(17))
@@ -71,8 +71,8 @@ describe Flow::Cassandra::Flag do
     end
 
     it 'several records with different scope' do
-      insert female(17), female(20), male(20), male(17)
-      remove female(20), male(17)
+      insert flow, female(17), female(20), male(20), male(17)
+      remove flow, female(20), male(17)
       storage.should == [
         youngest(female(17)),
         youngest(male(20))

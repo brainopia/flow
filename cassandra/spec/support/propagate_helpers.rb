@@ -1,5 +1,5 @@
 module PropagateHelpers
-  def propagate(type, records)
+  def propagate(type, flow, records)
     records.each do |record|
       flow.trigger type, record
       Flow::Cassandra::ROUTERS.values.each do |router|
@@ -8,11 +8,11 @@ module PropagateHelpers
     end
   end
 
-  def insert(*records)
-    propagate :insert, records
+  def insert(flow, *records)
+    propagate :insert, flow, records
   end
 
-  def remove(*records)
-    propagate :remove, records
+  def remove(flow, *records)
+    propagate :remove, flow, records
   end
 end
