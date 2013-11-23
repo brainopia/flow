@@ -1,0 +1,6 @@
+source 'https://rubygems.org'
+gemspec
+
+gem 'flow_base', path: '../base'
+gem 'flow-queue', path: '../queue/abstract'
+gem 'flow-queue-redis', path: '../queue/redis'

@@ -1,4 +1,4 @@
-Gem::Specification.new do |spec|
+Gem::Specification.new do |gem|
   gem.name          = 'flow-cassandra'
   gem.version       = '0.1'
   gem.authors       = 'brainopia'
