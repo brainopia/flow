@@ -19,7 +19,7 @@ class Flow::Cassandra::Flag < Flow::Action
     scope_value = scope_value_for data
 
     record   = catalog.one(scope: scope_value) || {}
-    previous = record[:data].freeze
+    previous = record[:data]
     all      = record[:all] || []
 
     case type

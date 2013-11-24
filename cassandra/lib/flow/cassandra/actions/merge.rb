@@ -20,7 +20,7 @@ class Flow::Cassandra::Merge < Flow::Action
 
     record   = catalog.one(scope: scope_value) || {}
     all      = record[:all] || []
-    previous = record[:data].freeze
+    previous = record[:data]
 
     case type
     when :insert
