@@ -4,3 +4,5 @@ gemspec
 gem 'flow_base', path: '../base'
 gem 'flow-queue', path: '../queue/abstract'
 gem 'flow-queue-redis', path: '../queue/redis'
+gem 'cassandra', github: 'brainopia/cassandra'
+gem 'cassandra-mapper', github: 'brainopia/cassandra-mapper'
