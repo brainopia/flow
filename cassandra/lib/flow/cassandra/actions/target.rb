@@ -1,10 +1,10 @@
 class Flow::Cassandra::Target < Flow::Action
-  attr_reader :target
+  attr_reader :mapper
 
   def setup!(mapper)
     if mapper.is_a? Cassandra::Mapper
       mapper.action :publisher, self
-      @target = mapper
+      @mapper = mapper
     else
       raise ArgumentError, "bad target: #{mapper}"
     end
@@ -13,10 +13,10 @@ class Flow::Cassandra::Target < Flow::Action
   def transform(type, data)
     case type
     when :insert, :remove
-      target.send type, data
+      mapper.send type, data
     when :check
       key = self.key data
-      objects = target.get key
+      objects = mapper.get key
       log_inspect key
       log_inspect objects
     else
