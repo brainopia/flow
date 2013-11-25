@@ -6,6 +6,7 @@ class Flow::Queue
 
   require_relative 'queue/provider'
   require_relative 'queue/route'
+  require_relative 'queue/receive'
 
   def self.handle(*queues)
     queues.each do |name|
