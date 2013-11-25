@@ -2,6 +2,10 @@ require 'spec_helper'
 
 describe Flow::Queue::Provider do
   context 'no provider' do
+    before do
+      stub_const "Flow::Queue::PROVIDERS", {}
+    end
+
     it 'should raise' do
       expect { Flow.queue_provider }.to raise_exception
     end
@@ -9,7 +13,7 @@ describe Flow::Queue::Provider do
 
   context 'one provider' do
     before do
-      stub_const "Flow::Queue::PROVIDERS", { redis: 'foo' }
+      stub_const "Flow::Queue::PROVIDERS", redis: 'foo'
     end
 
     it 'should return default provider' do

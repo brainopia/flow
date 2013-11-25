@@ -4,16 +4,12 @@ describe Flow::Queue::Receive do
   let(:storage) { [] }
   let(:queue_name) { :somewhere }
   let(:data) {{ foo: :bar } }
+  let(:actions_by_queue) { Flow::Queue::ACTIONS_BY_QUEUE }
   let(:flow) do
     Flow
       .derive {|it| it.merge primary: true }
       .queue_receive(queue_name)
       .store storage
-  end
-
-  before do
-    stub_const 'Flow::Queue::ACTIONS', {}
-    stub_const 'Flow::Queue::PROVIDERS', redis: double
   end
 
   it 'should work as usual' do
@@ -23,7 +19,7 @@ describe Flow::Queue::Receive do
 
   it 'should receive messages from queue' do
     flow
-    Flow::Queue::ACTIONS.values.first.propagate_next :insert, data
+    actions_by_queue.values.first.propagate_next :insert, data
     storage.should == [ data ]
   end
 end

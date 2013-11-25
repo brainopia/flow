@@ -1,36 +1,28 @@
 class Flow::Queue::Route < Flow::Action
-  attr_reader :queue, :router
+  attr_reader :queue, :queue_name
 
-  def setup!(queue=nil, &router)
-    register_queue_action!
-
-    if router
-      @router = router
-    elsif queue
-      @queue = queue
+  def setup!(queue_name=nil)
+    if queue_name
+      @queue_name = queue_name
+      @queue = flow.queue_provider.new queue_name
+      register_queue_action!
     else
       raise ArgumentError
     end
   end
 
   def transform(type, data)
-    queue = @router ? @router.call(data) : @queue
-    queue = flow.queue_provider.new queue
-    queue.push wrap(type, data)
+    queue.publish type, data
     nil
   end
 
   private
 
-  def wrap(type, data)
-    { action: name, type: type, data: data }
-  end
-
   def register_queue_action!
-    if Flow::Queue::ACTIONS[name]
-      raise "duplicate queue action with name #{name}"
+    if Flow::Queue::ACTIONS_BY_QUEUE[queue_name.to_sym]
+      raise "duplicate queue action with queue #{queue_name}"
     else
-      Flow::Queue::ACTIONS[name] = self
+      Flow::Queue::ACTIONS_BY_QUEUE[queue_name.to_sym] = self
     end
   end
 end
