@@ -1,4 +1,6 @@
 class Cassandra::Mapper
+  attr_reader :publishers, :subscribers
+
   def action(type, action)
     @publishers ||= []
     @subscribers ||= []
