@@ -48,6 +48,7 @@ class Flow
   require_relative 'flow/actions/check'
   require_relative 'flow/actions/store'
   require_relative 'flow/actions/derive'
+  require_relative 'flow/actions/union'
   require_relative 'flow/actions/if_match'
   require_relative 'flow/actions/unless_match'
 
