@@ -4,5 +4,6 @@ rvm:
   - ruby-head
 services:
   - cassandra
+  - redis
 before_install:
   - rake bundle
