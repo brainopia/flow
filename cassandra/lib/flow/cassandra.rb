@@ -44,7 +44,7 @@ module Flow::Cassandra
   end
 
   def router_as_parent(flow)
-    router_flow = flow.queue_route do |data|
+    router_flow = flow.queue_transport do |data|
       token = catalog.token_for key(data)
       ROUTERS[catalog.keyspace_name].determine_queue token
     end

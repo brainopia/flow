@@ -22,7 +22,7 @@ RSpec.configure do |config|
   config.include PropagateHelpers
 
   config.before do
-    stub_const 'Flow::Queue::ACTIONS', {}
+    stub_const 'Flow::Queue::ACTIONS_BY_NAME', {}
     Flow::Cassandra::ROUTERS.values.each do |router|
       router.local_queues.each do |queue|
         Flow::Queue::Redis.new(queue).clear
