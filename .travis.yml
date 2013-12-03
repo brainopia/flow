@@ -1,0 +1,11 @@
+language: ruby
+rvm:
+  - 2.0.0
+  - ruby-head
+services:
+  - cassandra
+gemfile:
+  - base/Gemfile
+  - queue/Gemfile
+  - queue-redis/Gemfile
+  - cassandra/Gemfile
