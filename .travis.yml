@@ -4,8 +4,5 @@ rvm:
   - ruby-head
 services:
   - cassandra
-gemfile:
-  - base/Gemfile
-  - queue/Gemfile
-  - queue-redis/Gemfile
-  - cassandra/Gemfile
+before_install:
+  - rake bundle
