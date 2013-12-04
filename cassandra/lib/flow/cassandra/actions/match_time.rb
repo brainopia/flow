@@ -31,11 +31,11 @@ class Flow::Cassandra::MatchTime < Flow::Action
     build_catalog
     prepend_router
 
-    secondary_flow = empty_flow.cassandra_source(mapper).derive do |data|
-      data.merge _secondary_: true
-    end
-
-    secondary_flow.copy_location(self)
+    secondary_flow = empty_flow
+      .cassandra_source(mapper)
+      .copy_location(self)
+      .derive {|data| data.merge _secondary_: true }
+      .copy_location(self)
 
     # place secondary_flow before router action
     # we use one-way relation to signify
