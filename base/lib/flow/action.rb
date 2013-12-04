@@ -75,7 +75,7 @@ class Flow::Action
   end
 
   def endpoints(actions=children)
-    return self if actions.empty?
+    return [self] if actions.empty?
     actions.flat_map(&:endpoints)
   end
 
