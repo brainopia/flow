@@ -48,7 +48,7 @@ module Flow::Cassandra
     # to keep current directives
     # otherwise directives between parent
     # and action would be lost
-    router = Flow::Queue::Transport.new flow.clone, parent
+    router = Flow::Queue::Transport.new empty_flow, parent
     router.location = location
     router.extend_name name
 
