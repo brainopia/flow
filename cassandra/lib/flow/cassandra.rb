@@ -52,9 +52,9 @@ module Flow::Cassandra
     router.location = location
     router.extend_name name
 
-    flow.directives.values.each do |directive|
-      directive.setup! router
-    end
+    # flow.directives.values.each do |directive|
+    #   directive.setup! router
+    # end
 
     router.setup! do |data|
       token = catalog.token_for key(data)
