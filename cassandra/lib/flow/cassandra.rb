@@ -54,6 +54,8 @@ module Flow::Cassandra
       token = catalog.token_for key(data)
       ROUTERS[catalog.keyspace_name].determine_queue token
     end
+
+    router_flow.action.location = location
     add_parent router_flow.action
   end
 end

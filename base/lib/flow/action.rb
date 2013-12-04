@@ -18,7 +18,8 @@ class Flow::Action
     end
   end
 
-  attr_reader :location, :parents, :children, :name, :flow
+  attr_reader :parents, :children, :name, :flow
+  attr_accessor :location
 
   def initialize(flow, action=nil)
     @flow     = flow or raise ArgumentError
