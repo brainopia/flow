@@ -44,18 +44,19 @@ module Flow::Cassandra
   end
 
   def replace_parent_with_router(parent=nil)
+    # use clone of current flow
     # to keep current directives
     # otherwise directives between parent
     # and action would be lost
-    parent_flow = flow.clone
-    parent_flow.action = parent
+    router = Flow::Queue::Transport.new flow.clone, parent
+    router.location = location
+    router.extend_name self.class.action_name
 
-    router_flow = parent_flow.queue_transport do |data|
+    router.setup! do |data|
       token = catalog.token_for key(data)
       ROUTERS[catalog.keyspace_name].determine_queue token
     end
 
-    router_flow.action.location = location
-    add_parent router_flow.action
+    add_parent router
   end
 end
