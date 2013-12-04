@@ -21,7 +21,7 @@ class Flow::Action
   attr_reader :location, :parents, :children, :name, :flow
 
   def initialize(flow, action=nil)
-    @flow     = flow
+    @flow     = flow or raise ArgumentError
     @location = determine_location
     @parents  = []
     @children = []

@@ -33,18 +33,24 @@ module Flow::Cassandra
 
   def prepend_router
     if parents.empty?
-      router_as_parent Flow
+      replace_parent_with_router
     else
       parents.each do |parent|
         parents.delete parent
         parent.children.delete self
-        router_as_parent parent.flow
+        replace_parent_with_router parent
       end
     end
   end
 
-  def router_as_parent(flow)
-    router_flow = flow.queue_transport do |data|
+  def replace_parent_with_router(parent=nil)
+    # to keep current directives
+    # otherwise directives between parent
+    # and action would be lost
+    parent_flow = flow.clone
+    parent_flow.action = parent
+
+    router_flow = parent_flow.queue_transport do |data|
       token = catalog.token_for key(data)
       ROUTERS[catalog.keyspace_name].determine_queue token
     end
