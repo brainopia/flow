@@ -10,9 +10,11 @@ class Flow::Cassandra::MatchFirst < Flow::Action
     build_catalog
     prepend_router
 
-    secondary_flow = Flow.cassandra_source(mapper).derive do |data|
+    secondary_flow = empty_location.cassandra_source(mapper).derive do |data|
       data.merge _secondary_: true
     end
+
+    secondary_flow.copy_location(self)
 
     # place secondary_flow before router action
     # we use one-way relation to signify

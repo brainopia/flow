@@ -84,4 +84,9 @@ class Flow
   def directive_for(name, klass)
     directives[name] ||= klass.new
   end
+
+  def copy_location(from_action)
+    action.location = from_action.location
+    self
+  end
 end

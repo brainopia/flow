@@ -112,6 +112,10 @@ class Flow::Action
 
   private
 
+  def empty_flow
+    flow.clone_with(nil)
+  end
+
   def log(&block)
     if flow.logger
       block.call flow.logger
