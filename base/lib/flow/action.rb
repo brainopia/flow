@@ -9,6 +9,13 @@ class Flow::Action
     def action_name
       Flow::Utilities::Format.pretty_name self
     end
+
+    def name(name)
+      previous_name = action_name
+      rename = -> { alias_method name, previous_name }
+      Flow.class_eval &rename
+      Flow.instance_eval &rename
+    end
   end
 
   attr_reader :location, :parents, :children, :name, :flow
