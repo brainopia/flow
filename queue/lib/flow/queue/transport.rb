@@ -27,8 +27,13 @@ class Flow::Queue::Transport < Flow::Action
   end
 
   def register_queue_action!
-    if Flow::Queue::ACTIONS_BY_NAME[name]
-      raise "duplicate queue action with name #{name}"
+    existing_action = Flow::Queue::ACTIONS_BY_NAME[name]
+    if existing_action
+      raise <<-ERROR
+        duplicate queue action with name #{name}"
+        existing action location: #{existing_action.location}
+        current action location:  #{location}
+      ERROR
     else
       Flow::Queue::ACTIONS_BY_NAME[name] = self
     end
