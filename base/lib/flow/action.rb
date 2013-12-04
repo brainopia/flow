@@ -104,7 +104,7 @@ class Flow::Action
       action = self
       while action
         locations << action.location
-        action = parents.first
+        action = action.parents.first
       end
     end
   end
