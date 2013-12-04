@@ -32,35 +32,30 @@ module Flow::Cassandra
   end
 
   def prepend_router
-    if parents.empty?
-      replace_parent_with_router
-    else
-      parents.each do |parent|
-        parents.delete parent
-        parent.children.delete self
-        replace_parent_with_router parent
-      end
+    parents.dup.each do |parent|
+      parents.delete parent
+      parent.children.delete self
+      router.add_parent parent
     end
+    add_parent router
   end
 
-  def replace_parent_with_router(parent=nil)
-    # use clone of current flow
-    # to keep current directives
-    # otherwise directives between parent
-    # and action would be lost
-    router = Flow::Queue::Transport.new empty_flow, parent
-    router.location = location
-    router.extend_name name
+  def router
+    @router ||= begin
+      router = Flow::Queue::Transport.new empty_flow
+      router.location = location
+      router.extend_name name
 
-    # flow.directives.values.each do |directive|
-    #   directive.setup! router
-    # end
+      # flow.directives.values.each do |directive|
+      #   directive.setup! router
+      # end
 
-    router.setup! do |data|
-      token = catalog.token_for key(data)
-      ROUTERS[catalog.keyspace_name].determine_queue token
+      router.setup! do |data|
+        token = catalog.token_for key(data)
+        ROUTERS[catalog.keyspace_name].determine_queue token
+      end
+      
+      router
     end
-
-    add_parent router
   end
 end
