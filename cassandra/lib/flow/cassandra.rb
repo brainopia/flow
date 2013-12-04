@@ -50,7 +50,7 @@ module Flow::Cassandra
     # and action would be lost
     router = Flow::Queue::Transport.new flow.clone, parent
     router.location = location
-    router.extend_name self.class.action_name
+    router.extend_name name
 
     flow.directives.values.each do |directive|
       directive.setup! router
