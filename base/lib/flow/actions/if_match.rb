@@ -12,7 +12,8 @@ class Flow::Action::IfMatch < Flow::Action
       else
         @block_children  = @children
         @children        = []
-        new_flow.union *endpoints(@block_children).map(&:flow)
+        subflows = endpoints(@block_children).map(&:flow)
+        new_flow.union(*subflows).copy_location(self)
       end
     else
       new_flow
