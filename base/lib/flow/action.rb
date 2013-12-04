@@ -12,7 +12,7 @@ class Flow::Action
 
     def shortcut(name)
       previous_name = action_name
-      rename = -> { alias_method name, previous_name }
+      rename = proc { alias_method name, previous_name }
       Flow.class_eval &rename
       Flow.instance_eval &rename
     end
