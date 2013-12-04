@@ -110,6 +110,14 @@ class Flow::Action
     end
   end
 
+  def new_flow
+    # to support inheritance of extended modules
+    flow.clone_with self
+  end
+
+  def setup!
+  end
+
   private
 
   def empty_flow

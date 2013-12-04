@@ -1,25 +1,25 @@
 class Flow::Action::IfMatch < Flow::Action
   attr_reader :block_children
 
-  def setup_with_flow!(field, value=Flow::DEFAULT_ARGUMENT, &block)
+  def setup!(field, value=Flow::DEFAULT_ARGUMENT, &block)
     @field = field
     @value = value
-    new_flow = flow.clone_with(self)
 
     if block
       block.call new_flow
 
-      if @children.empty?
-        new_flow
-      else
+      unless @children.empty?
         @block_children  = @children
         @children        = []
-        subflows = endpoints(@block_children).map(&:flow)
-        new_flow.union(*subflows).copy_location(self)
       end
-    else
-      new_flow
     end
+  end
+
+  def new_flow
+    return super unless @block_children
+
+    subflows = endpoints(@block_children).map(&:new_flow)
+    super.union(*subflows).copy_location(self)
   end
 
   def propagate(type, data)

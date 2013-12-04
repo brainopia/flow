@@ -16,16 +16,8 @@ class Flow
       define_method klass.action_name do |*args, &block|
         new_action = klass.new self, action
         directives.values.each {|it| it.setup! new_action }
-
-        if new_action.respond_to? :setup!
-          new_action.setup! *args, &block
-          clone_with new_action
-        elsif new_action.respond_to? :setup_with_flow!
-          new_action.setup_with_flow! *args, &block
-        else
-          # to support inheritance of extended modules
-          clone_with new_action
-        end
+        new_action.setup! *args, &block
+        new_action.new_flow
       end
     end
 
