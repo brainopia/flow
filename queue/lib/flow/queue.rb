@@ -16,10 +16,25 @@ class Flow::Queue
     end
   end
 
+  def self.register(type, action, key)
+    registry = const_get "ACTIONS_BY_#{type.upcase}"
+    existing_action = registry[key]
+    if existing_action
+      raise <<-ERROR
+        duplicate queue action with #{type}: #{key}
+        main parents:
+        - #{existing_action.parents.first.location}
+        - #{action.parents.first.location}
+      ERROR
+    else
+      registry[key] = action
+    end
+  end
+
   attr_reader :name
 
   def initialize(name)
-    @name = name
+    @name = name.to_sym
   end
 
   def run
