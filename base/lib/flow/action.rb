@@ -10,7 +10,7 @@ class Flow::Action
       Flow::Utilities::Format.pretty_name self
     end
 
-    def name(name)
+    def shortcut(name)
       previous_name = action_name
       rename = -> { alias_method name, previous_name }
       Flow.class_eval &rename
