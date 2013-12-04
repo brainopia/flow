@@ -1,14 +1,21 @@
 class Flow::Action::IfMatch < Flow::Action
-  def setup!(field, value=Flow::DEFAULT_ARGUMENT, &block)
+  def setup_with_flow!(field, value=Flow::DEFAULT_ARGUMENT, &block)
     @field = field
     @value = value
+    new_flow = flow.clone_with(self)
+
     if block
-      block.call flow.clone_with(self)
-      unless @children.empty?
+      block.call new_flow
+
+      if @children.empty?
+        new_flow
+      else
         @block_children  = @children
-        @block_endpoints = endpoints @block_children
         @children        = []
+        new_flow.union *endpoints(@block_children).map(&:flow)
       end
+    else
+      new_flow
     end
   end
 
@@ -18,14 +25,6 @@ class Flow::Action::IfMatch < Flow::Action
       propagate_for @block_children, type, data
     elsif @block_children or matched
       propagate_next type, data
-    end
-  end
-
-  def add_child(action)
-    super
-    return unless @block_endpoints
-    @block_endpoints.each do |it|
-      action.add_parent it
     end
   end
 
