@@ -91,6 +91,12 @@ class Flow::Action
   def extend_name(string)
     name << '_' << string.to_s
   end
+  
+  def setup!(*args)
+    unless args.empty?
+      raise ArgumentError, 'redefine this method in action to handle arguments'
+    end
+  end
 
   private
 
