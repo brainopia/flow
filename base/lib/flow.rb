@@ -70,7 +70,7 @@ class Flow
   end
 
   def apply
-    yield self if block_given?
+    block_given? ? yield(self) : self
   end
 
   def trigger(type, data)
