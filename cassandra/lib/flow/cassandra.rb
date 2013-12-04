@@ -52,6 +52,10 @@ module Flow::Cassandra
     router.location = location
     router.extend_name self.class.action_name
 
+    flow.directives.values.each do |directive|
+      directive.setup! router
+    end
+
     router.setup! do |data|
       token = catalog.token_for key(data)
       ROUTERS[catalog.keyspace_name].determine_queue token
