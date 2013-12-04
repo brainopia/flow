@@ -19,8 +19,13 @@ class Flow::Queue::Route < Flow::Action
   private
 
   def register_queue_action!
-    if Flow::Queue::ACTIONS_BY_QUEUE[queue_name.to_sym]
-      raise "duplicate queue action with queue #{queue_name}"
+    existing_action = Flow::Queue::ACTIONS_BY_QUEUE[queue_name.to_sym]
+    if existing_action
+      raise <<-ERROR
+        duplicate queue action with queue #{queue_name}"
+        existing action location: #{existing_action.location}
+        current action location:  #{location}
+      ERROR
     else
       Flow::Queue::ACTIONS_BY_QUEUE[queue_name.to_sym] = self
     end
