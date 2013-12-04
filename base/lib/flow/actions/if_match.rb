@@ -4,9 +4,11 @@ class Flow::Action::IfMatch < Flow::Action
     @value = value
     if block
       block.call flow.clone_with(self)
-      @block_children  = @children
-      @block_endpoints = endpoints @block_children
-      @children        = []
+      unless @children.empty?
+        @block_children  = @children
+        @block_endpoints = endpoints @block_children
+        @children        = []
+      end
     end
   end
 
