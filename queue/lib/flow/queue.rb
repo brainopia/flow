@@ -22,9 +22,8 @@ class Flow::Queue
     if existing_action
       raise <<-ERROR
         duplicate queue action with #{type}: #{key}
-        main parents:
-        - #{existing_action.parents.first.location}
-        - #{action.parents.first.location}
+        conflicting flow locations: \n#{ existing_action.main_locations.join("\n") }
+        current flow locations: \n#{ action.main_locations.join("\n") }
       ERROR
     else
       registry[key] = action

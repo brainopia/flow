@@ -99,6 +99,16 @@ class Flow::Action
     name << '_' << string.to_s
   end
 
+  def main_locations
+    [].tap do |locations|
+      action = self
+      while action
+        locations << action.location
+        action = parents.first
+      end
+    end
+  end
+
   private
 
   def log(&block)
