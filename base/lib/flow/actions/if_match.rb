@@ -1,4 +1,6 @@
 class Flow::Action::IfMatch < Flow::Action
+  attr_reader :block_children
+
   def setup_with_flow!(field, value=Flow::DEFAULT_ARGUMENT, &block)
     @field = field
     @value = value
