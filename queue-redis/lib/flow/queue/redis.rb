@@ -6,32 +6,33 @@ require 'redis'
 # also benchmark in comparison to sidekiq
 # add reliable pull
 class Flow::Queue::Redis < Flow::Queue
+  attr_reader :redis_name
   attr_accessor :connection
   Flow::Queue::PROVIDERS[:redis] = self
 
   def initialize(*)
     super
-    @name = "flow-#{name}"
+    @redis_name = "flow-#{name}"
   end
 
   def push_raw(message)
-    client.lpush name, message
+    client.lpush redis_name, message
   end
 
   def pull_raw(blocking: true)
     if blocking
-      client.brpop(name).last
+      client.brpop(redis_name).last
     else
-      client.rpop name
+      client.rpop redis_name
     end
   end
 
   def clear
-    client.del name
+    client.del redis_name
   end
 
   def count
-    client.llen name
+    client.llen redis_name
   end
 
   private
