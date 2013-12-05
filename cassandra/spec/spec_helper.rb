@@ -1,16 +1,11 @@
 require 'flow/cassandra'
 require 'flow/queue/redis'
+require 'flow/cassandra/test'
 require 'support/propagate_helpers'
 
 def Flow.default
   new.cassandra_keyspace(:flow).apply do |it|
     ENV['VERBOSE'] ? it.logger(STDOUT) : it
-  end
-end
-
-class Flow::Cassandra::Router
-  def local_queues
-    all_queues
   end
 end
 

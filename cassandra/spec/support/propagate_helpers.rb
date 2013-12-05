@@ -2,9 +2,7 @@ module PropagateHelpers
   def propagate(type, flow, records)
     records.each do |record|
       flow.trigger type, record
-      Flow::Cassandra::ROUTERS.values.each do |router|
-        router.pull_and_propagate Flow::Queue::Redis
-      end
+      Flow::Cassandra.propagate_all Flow::Queue::Redis
     end
   end
 
