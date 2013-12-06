@@ -15,9 +15,13 @@ class Flow::Queue::Transport < Flow::Action
 
   def transform(type, data)
     queue = @router ? @router.call(data) : @queue
-    queue = flow.queue_provider.new queue
-    queue.push wrap(type, data)
-    nil
+    if queue
+      queue = flow.queue_provider.new queue
+      queue.push wrap(type, data)
+      nil
+    else
+      data
+    end
   end
 
   private
