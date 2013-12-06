@@ -51,8 +51,11 @@ module Flow::Cassandra
       # end
 
       router.setup! do |data|
-        token = catalog.token_for key(data)
-        ROUTERS[catalog.keyspace_name].determine_queue token
+        key_data = key data
+        if key_data.values.all?
+          token = catalog.token_for key_data
+          ROUTERS[catalog.keyspace_name].determine_queue token
+        end
       end
       
       router
