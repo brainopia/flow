@@ -13,8 +13,9 @@ class Flow::Queue::Route < Flow::Action
   end
 
   def transform(type, data)
-    queue.push type: type, data: data
-    nil
+    unless queue.push type: type, data: data
+      data
+    end
   end
 
   private
