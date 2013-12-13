@@ -4,7 +4,7 @@ describe Flow::Queue::Receive do
   let(:storage) { [] }
   let(:queue_name) { :somewhere }
   let(:data) {{ foo: :bar } }
-  let(:actions_by_queue) { Flow::Queue::ACTIONS_BY_QUEUE }
+
   let(:flow) do
     Flow
       .derive {|it| it.merge primary: true }
@@ -18,8 +18,9 @@ describe Flow::Queue::Receive do
   end
 
   it 'should receive messages from queue' do
-    flow
-    actions_by_queue.values.first.propagate_next :insert, data
+    scheduler = scheduler_for flow
+    queue_for(flow).push type: :insert, data: data
+    scheduler.run
     storage.should == [ data ]
   end
 end

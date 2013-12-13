@@ -2,3 +2,4 @@ source 'https://rubygems.org'
 gemspec
 
 gem 'flow_base', path: '../base'
+gem 'floq', github: 'brainopia/floq'

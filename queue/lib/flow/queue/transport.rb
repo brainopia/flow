@@ -1,32 +1,17 @@
-class Flow::Queue::Transport < Flow::Action
-  attr_reader :queue, :router
-
-  def setup!(queue=nil, &router)
-    Flow::Queue.register :name, self, name
-
-    if router
-      @router = router
-    elsif queue
-      @queue = queue
-    else
-      raise ArgumentError
-    end
-  end
-
+class Flow::Queue::Transport < Flow::Queue::Route
   def transform(type, data)
-    queue = @router ? @router.call(data) : @queue
-    if queue
-      queue = flow.queue_provider.new queue
-      queue.push wrap(type, data)
-      nil
-    else
-      data
-    end
+    queue.push action: name, type: type, data: data
+    nil
   end
 
   private
 
-  def wrap(type, data)
-    { action: name, type: type, data: data }
+  def registry_key
+    name
+  end
+
+  def handler(message)
+    action = REGISTRY.fetch message[:action]
+    action.propagate_next message[:type], message[:data]
   end
 end

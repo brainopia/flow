@@ -1,33 +1,28 @@
 require 'spec_helper'
 
 describe Flow::Queue::Route do
-  let(:count) { double }
-  let(:redis) { double.as_null_object }
   let(:queue_name) { :somewhere } 
-  let(:actions_by_queue) { Flow::Queue::ACTIONS_BY_QUEUE }
-  let(:flow) { Flow.queue_route queue_name }
+  let(:storage) { [] }
+  let(:data) {{ foo: :bar }}
+  let(:flow) do
+    Flow
+      .queue_route(queue_name)
+      .store(storage)
+  end
 
   before do
-    stub_const 'Flow::Queue::PROVIDERS', redis: redis
+    queue_for(flow).drop
   end
 
   it 'should intercept data' do
-    count.should_not_receive(:after_route)
-    flow.check { count.after_route }
-    flow.trigger :insert, data: true
-  end
-
-  it 'should register action for queue' do
-    flow = Flow.queue_route queue_name
-    actions_by_queue.should == { queue_name => flow.action }
+    flow.trigger :insert, data
+    storage.should be_empty
   end
 
   it 'should deliver data' do
-    queue_stub = double
-
-    redis.should_receive(:new).with(queue_name).and_return queue_stub
-    queue_stub.should_receive(:publish).with :insert, foo: :bar
-
-    flow.trigger :insert, foo: :bar
+    scheduler = scheduler_for flow
+    flow.trigger :insert, data
+    scheduler.run
+    storage.should == [ data ]
   end
 end

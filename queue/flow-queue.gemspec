@@ -10,5 +10,6 @@ Gem::Specification.new do |gem|
   gem.require_paths = %w(lib)
 
   gem.add_dependency 'flow_base'
+  gem.add_dependency 'floq'
   gem.add_development_dependency 'rspec'
 end

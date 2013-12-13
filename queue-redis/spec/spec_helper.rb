@@ -1,1 +1,0 @@
-require 'flow/queue/redis'

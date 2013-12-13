@@ -1,8 +1,9 @@
 source 'https://rubygems.org'
 gemspec
 
-gem 'flow_base', path: '../base'
-gem 'flow-queue', path: '../queue'
+gem 'flow_base',        path: '../base'
+gem 'flow-queue',       path: '../queue'
 gem 'flow-queue-redis', path: '../queue-redis'
-gem 'cassandra', github: 'brainopia/cassandra'
+gem 'cassandra',        github: 'brainopia/cassandra'
 gem 'cassandra-mapper', github: 'brainopia/cassandra-mapper'
+gem 'floq',             github: 'brainopia/floq'
