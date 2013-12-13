@@ -81,4 +81,13 @@ class Flow
     action.location = from_action.location
     self
   end
+
+  def actions
+    [ action ].tap do |actions|
+      parents = actions
+      until (parents = parents.flat_map(&:parents)).empty?
+        actions.concat parents
+      end
+    end
+  end
 end
