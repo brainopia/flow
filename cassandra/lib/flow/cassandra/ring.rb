@@ -1,11 +1,12 @@
-class Flow::Cassandra::Router
-  attr_reader :ring, :wrap_around, :keyspace
+class Flow::Cassandra::Ring
+  attr_reader :ranges, :monotonic_ranges,
+              :wrap_around, :keyspace
 
   def initialize(keyspace)
     @keyspace = keyspace.to_s
 
-    retrieve_ring
-    normalize_ring
+    retrieve_ranges
+    normalize_ranges
     extract_wrap_around
   end
 
@@ -18,17 +19,11 @@ class Flow::Cassandra::Router
   end
 
   def all_queues
-    @all_queues ||= full_ring.map(&:queue)
+    @all_queues ||= ranges.map(&:queue)
   end
 
   def local_queues
-    @local_queues ||= local_ring.map(&:queue)
-  end
-
-  def pull_and_propagate(provider)
-    local_queues.each do |it|
-      provider.new(it).pull_and_propagate blocking: false
-    end
+    @local_queues ||= local_ranges.map(&:queue)
   end
 
   private
@@ -37,36 +32,32 @@ class Flow::Cassandra::Router
     @local_addresses ||= System.get_ifaddrs.values.map {|it| it[:inet_addr] }
   end
 
-  def full_ring
-    ring + [wrap_around]
-  end
-
-  def local_ring
-    full_ring.select do |range|
+  def local_ranges
+    ranges.select do |range|
       local_addresses.include? range.endpoints.first
     end
   end
 
   def find_range(token)
-    ring.find do |range|
+    monotonic_ranges.find do |range|
       range.start_token > token and token <= range.end_token
     end or wrap_around
   end
 
-  def retrieve_ring
-    @ring = Cassandra.new(keyspace, server).ring
+  def retrieve_ranges
+    @ranges = Cassandra.new(keyspace, server).ring
   end
 
-  def normalize_ring
-    ring.each do |range|
+  def normalize_ranges
+    ranges.each do |range|
       range.start_token = range.start_token.to_i
       range.end_token = range.end_token.to_i
-      range.queue = "#{keyspace}_#{range.start_token}"
+      range.queue = Floq["#{keyspace}_#{range.start_token}", :singular]
     end
   end
 
   def extract_wrap_around
-    candidates = ring.select do |it|
+    candidates = ranges.select do |it|
       it.start_token > it.end_token
     end
 
@@ -74,7 +65,7 @@ class Flow::Cassandra::Router
     raise 'Missing wrap around'       if candidates.empty?
 
     @wrap_around = candidates.first
-    ring.delete wrap_around
+    @monotonic_ranges = ranges - [ wrap_around ]
   end
 
   def server

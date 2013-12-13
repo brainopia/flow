@@ -17,12 +17,8 @@ class Flow::Queue::Router
   end
 
   def push(message)
-    if queue_name = selector.call(message)
-      if queue = queues.find {|it| it.name == queue_name }
-        queue.push message
-      else
-        raise ArgumentError, queue_name
-      end
+    if queue = selector.call(message)
+      queue.push message
     end
   end
 end

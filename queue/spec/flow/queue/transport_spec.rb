@@ -55,7 +55,7 @@ describe Flow::Queue::Transport do
 
     let(:router) do
       Flow::Queue::Router.new queue_1, queue_2 do |message|
-        "floq-#{message[:data][:queue]}"
+        Floq[message[:data][:queue]]
       end
     end
 
@@ -72,10 +72,6 @@ describe Flow::Queue::Transport do
     it 'should intercept data' do
       flow.trigger :insert, queue: :a
       storage.should be_empty
-    end
-
-    it 'should raise when queue is missing' do
-      expect { flow.trigger :insert, queue: :c }.to raise_exception
     end
 
     it 'should deliver data' do

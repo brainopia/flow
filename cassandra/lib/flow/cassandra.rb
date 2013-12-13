@@ -8,7 +8,7 @@ require 'system/getifaddrs'
 # and only then update catalog because if we'll be stopped mid-action
 # everything will be replayed and we need to replay based on the old catalog entry
 module Flow::Cassandra
-  require_relative 'cassandra/router'
+  require_relative 'cassandra/ring'
   require_relative 'cassandra/extensions/mapper'
   require_relative 'cassandra/extensions/token_range'
   require_relative 'cassandra/directives/keyspace'
@@ -19,8 +19,16 @@ module Flow::Cassandra
   require_relative 'cassandra/actions/match_first'
   require_relative 'cassandra/actions/match_time'
 
-  ROUTERS = Hash.new do |all, keyspace|
-    all[keyspace] = Router.new keyspace
+  RINGS = Hash.new do |all, keyspace|
+    all[keyspace] = Ring.new keyspace
+  end
+
+  def self.ring(keyspace)
+    RINGS[keyspace.to_sym]
+  end
+
+  def self.rings
+    RINGS.values
   end
 
   def scope_value_for(data)
@@ -42,23 +50,26 @@ module Flow::Cassandra
 
   def router
     @router ||= begin
-      router = Flow::Queue::Transport.new empty_flow
-      router.location = location
-      router.extend_name name
+      transport = Flow::Queue::Transport.new empty_flow
+      transport.location = location
+      transport.extend_name name
 
       # flow.directives.values.each do |directive|
-      #   directive.setup! router
+      #   directive.setup! transport
       # end
 
-      router.setup! do |data|
+      ring = Flow::Cassandra.ring catalog.keyspace_name
+      router = Flow::Queue::Router.new *ring.local_queues do |message|
+        data = message[:data]
         key_data = key data
         if key_data.values.all?
           token = catalog.token_for key_data
-          ROUTERS[catalog.keyspace_name].determine_queue token
+          ring.determine_queue token
         end
       end
-      
-      router
+
+      transport.setup! router
+      transport
     end
   end
 end
