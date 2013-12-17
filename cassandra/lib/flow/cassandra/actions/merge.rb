@@ -58,7 +58,11 @@ class Flow::Cassandra::Merge < Flow::Action
     all.delete_at all.index(data)
     update = all.inject(nil) {|previous, it| callback.call(it, previous) }
 
-    catalog.insert scope: scope_value, data: update, all: all
+    if all.empty?
+      catalog.remove scope: scope_value
+    else
+      catalog.insert scope: scope_value, data: update, all: all
+    end
 
     if previous != update
       propagate_next :remove, previous
