@@ -20,12 +20,14 @@ describe Flow::Cassandra::Merge do
 
     it 'insert' do
       insert flow, create_user
+      scheduler.run
       storage.should == [ create_user.merge(updates: 0) ]
     end
 
     it 'remove' do
       insert flow, create_user
       remove flow, create_user
+      scheduler.run
       storage.should be_empty
     end
   end
@@ -36,18 +38,21 @@ describe Flow::Cassandra::Merge do
 
     it 'insert' do
       insert flow, create_user, update_user
+      scheduler.run
       storage.should == [{ user_id: 1, gender: :female, age: 20, updates: 1 }]
     end
 
     it 'remove first' do
       insert flow, create_user, update_user
       remove flow, create_user
+      scheduler.run
       storage.should == [ update_user.merge(updates: 0) ]
     end
 
     it 'remove last' do
       insert flow, create_user, update_user
       remove flow, update_user
+      scheduler.run
       storage.should == [ create_user.merge(updates: 0) ]
     end
   end

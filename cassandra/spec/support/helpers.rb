@@ -3,7 +3,6 @@ module Helpers
     records.each do |record|
       flow.trigger type, record
     end
-    scheduler.run
   end
 
   def insert(flow, *records)

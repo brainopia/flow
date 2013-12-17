@@ -24,11 +24,13 @@ describe Flow::Cassandra::Flag do
   context 'propagate insertion' do
     it 'one record' do
       insert flow, male(15)
+      scheduler.run
       storage.should == [youngest(male(15))]
     end
 
     it 'several records in increasing order' do
       insert flow, male(15), male(17), male(19)
+      scheduler.run
       storage.should == [
         youngest(male(15)),
         male(17),
@@ -38,6 +40,7 @@ describe Flow::Cassandra::Flag do
 
     it 'several records in mixed order' do
       insert flow, male(17), male(15), male(19)
+      scheduler.run
       storage.should == [
         male(17),
         youngest(male(15)),
@@ -47,6 +50,7 @@ describe Flow::Cassandra::Flag do
 
     it 'records with different scope' do
       insert flow, male(20), female(19)
+      scheduler.run
       storage.should == [
         youngest(male(20)),
         youngest(female(19))
@@ -58,12 +62,14 @@ describe Flow::Cassandra::Flag do
     it 'one record' do
       insert flow, female(20)
       remove flow, female(20)
+      scheduler.run
       storage.should be_empty
     end
 
     it 'several records with one scope' do
       insert flow, female(20), female(15), female(17)
       remove flow, female(15)
+      scheduler.run
       storage.should == [
         female(20),
         youngest(female(17))
@@ -73,6 +79,7 @@ describe Flow::Cassandra::Flag do
     it 'several records with different scope' do
       insert flow, female(17), female(20), male(20), male(17)
       remove flow, female(20), male(17)
+      scheduler.run
       storage.should == [
         youngest(female(17)),
         youngest(male(20))

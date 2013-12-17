@@ -38,23 +38,27 @@ describe Flow::Cassandra::MatchFirst do
 
     it 'insert one' do
       insert flow, polo
+      scheduler.run
       storage.should == [ polo ]
     end
 
     it 'insert two' do
       insert flow, polo, polo
+      scheduler.run
       storage.should == [ polo, polo ]
     end
 
     it 'remove one' do
       insert flow, polo, polo
       remove flow, polo
+      scheduler.run
       storage.should == [ polo ]
     end
 
     it 'remove two' do
       insert flow, polo, polo
       remove flow, polo, polo
+      scheduler.run
       storage.should == [ ]
     end
   end
@@ -65,9 +69,11 @@ describe Flow::Cassandra::MatchFirst do
     it 'one visit' do
       insert mapper_flow, visit('marko', time)
       insert flow, marko
+      scheduler.run
       storage.should == [ marko.merge(visit_at: time) ]
 
       remove flow, marko
+      scheduler.run
       storage.should == [ ]
     end
   end
@@ -77,18 +83,23 @@ describe Flow::Cassandra::MatchFirst do
 
     it 'two visits' do
       insert flow, batman
+      scheduler.run
       storage.should == [ batman ]
 
       insert mapper_flow, visit('batman', time + 10)
+      scheduler.run
       storage.should == [ batman.merge(visit_at: time + 10) ]
 
       insert mapper_flow, visit('batman', time + 15)
+      scheduler.run
       storage.should == [ batman.merge(visit_at: time + 10) ]
 
       remove mapper_flow, visit('batman', time + 10)
+      scheduler.run
       storage.should == [ batman.merge(visit_at: time + 15) ]
 
       remove mapper_flow, visit('batman', time + 15)
+      scheduler.run
       storage.should == [ batman ]
     end
   end

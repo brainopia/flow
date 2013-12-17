@@ -29,11 +29,13 @@ describe Flow::Cassandra::MatchTime do
 
   it 'should insert one record' do
     insert flow, order
+    scheduler.run
     storage.should == [ order ]
   end
 
   it 'should remove one record' do
     remove flow, order
+    scheduler.run
     storage.should == []
   end
 end
