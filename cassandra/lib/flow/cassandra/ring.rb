@@ -28,13 +28,9 @@ class Flow::Cassandra::Ring
 
   private
 
-  def local_addresses
-    @local_addresses ||= System.get_ifaddrs.values.map {|it| it[:inet_addr] }
-  end
-
   def local_ranges
     ranges.select do |range|
-      local_addresses.include? range.endpoints.first
+      Flow::Cassandra::Local.addresses.include? range.endpoints.first
     end
   end
 

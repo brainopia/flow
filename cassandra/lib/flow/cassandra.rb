@@ -1,6 +1,5 @@
 require 'flow/queue'
 require 'cassandra/mapper'
-require 'system/getifaddrs'
 
 # TODO: support replay by keeping hash of initial data as id
 # and ignoring events who's already in cache.
@@ -9,6 +8,7 @@ require 'system/getifaddrs'
 # everything will be replayed and we need to replay based on the old catalog entry
 module Flow::Cassandra
   require_relative 'cassandra/ring'
+  require_relative 'cassandra/local'
   require_relative 'cassandra/extensions/mapper'
   require_relative 'cassandra/extensions/token_range'
   require_relative 'cassandra/directives/keyspace'

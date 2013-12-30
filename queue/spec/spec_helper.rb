@@ -1,6 +1,6 @@
 require 'flow/queue'
 
-Floq.provider = Floq::Providers::Memory
+Floq.adapter = Floq::Adapters::Memory
 
 RSpec.configure do |config|
   config.before do
@@ -14,7 +14,7 @@ RSpec.configure do |config|
 
     def scheduler_for(*flows)
       queues = flows.map {|flow| queue_for flow }
-      Floq::Schedulers::Test.new queues
+      Floq::Schedulers::Test.new queues: queues
     end
   }
 end

@@ -15,9 +15,8 @@ module Helpers
 
   def scheduler
     $scheduler ||= begin
-      Floq::Schedulers::Test.new.tap do |it|
-        it.add Flow::Cassandra.ring('flow_test').local_queues
-      end
+      queues = Flow::Cassandra.ring('flow_test').local_queues
+      Floq::Schedulers::Test.new queues: queues
     end
   end
 end

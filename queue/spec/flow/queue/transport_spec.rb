@@ -76,7 +76,7 @@ describe Flow::Queue::Transport do
 
     it 'should deliver data' do
       flow
-      scheduler = Floq::Schedulers::Test.new router.queues
+      scheduler = Floq::Schedulers::Test.new queues: router.queues
       data = { queue: :a, foo: true }
       flow.trigger :insert, data
       scheduler.run
