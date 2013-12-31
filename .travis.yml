@@ -7,4 +7,5 @@ services:
   - cassandra
   - redis
 before_install:
+  - gem update bundler
   - rake bundle
