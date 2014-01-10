@@ -1,6 +1,6 @@
 require 'flow/queue'
 
-Floq.adapter = Floq::Adapters::Memory
+Floq::Provider.default.use! :adapter, :memory
 
 RSpec.configure do |config|
   config.before do

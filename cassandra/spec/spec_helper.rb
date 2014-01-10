@@ -7,7 +7,7 @@ def Flow.default
   end
 end
 
-Floq.adapter = Floq::Adapters::Memory
+Floq::Provider.default.use! :adapter, :memory
 
 Cassandra::Mapper.schema = { keyspaces: [:flow] }
 Cassandra::Mapper.env    = :test
