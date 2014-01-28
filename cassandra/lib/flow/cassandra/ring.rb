@@ -36,7 +36,7 @@ class Flow::Cassandra::Ring
 
   def find_range(token)
     monotonic_ranges.find do |range|
-      range.start_token > token and token <= range.end_token
+      range.start_token < token and token <= range.end_token
     end or wrap_around
   end
 
