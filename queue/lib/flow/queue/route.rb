@@ -13,7 +13,7 @@ class Flow::Queue::Route < Flow::Action
   end
 
   def transform(type, data)
-    unless queue.push type: type, data: data
+    unless queue.push [type, data]
       data
     end
   end
@@ -24,8 +24,8 @@ class Flow::Queue::Route < Flow::Action
     queue.handle &method(:handler)
   end
 
-  def handler(message)
-    propagate_next message[:type], message[:data]
+  def handler((type, data))
+    propagate_next type, data
   end
 
   def registry_key

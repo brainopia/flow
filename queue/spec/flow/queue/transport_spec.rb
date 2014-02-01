@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Flow::Queue::Transport do
   context 'static queue' do
-    let(:queue_name) { :somewhere } 
+    let(:queue_name) { :somewhere }
     let(:data) {{ wo: :ow }}
     let(:storage_1) { [] }
     let(:storage_2) { [] }
@@ -54,8 +54,8 @@ describe Flow::Queue::Transport do
     let(:queue_2) { Floq[:b] }
 
     let(:router) do
-      Flow::Queue::Router.new queue_1, queue_2 do |message|
-        Floq[message[:data][:queue]]
+      Flow::Queue::Router.new queue_1, queue_2 do |_,_,data|
+        Floq[data[:queue]]
       end
     end
 

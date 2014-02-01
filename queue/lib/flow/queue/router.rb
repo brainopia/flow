@@ -5,7 +5,7 @@ class Flow::Queue::Router
     @queues = queues
     @selector = selector
   end
-  
+
   def handle(&handler)
     queues.each {|it| it.handle &handler }
     @handler = handler

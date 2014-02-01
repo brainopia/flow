@@ -19,7 +19,7 @@ describe Flow::Queue::Receive do
 
   it 'should receive messages from queue' do
     scheduler = scheduler_for flow
-    queue_for(flow).push type: :insert, data: data
+    queue_for(flow).push [:insert, data]
     scheduler.run
     storage.should == [ data ]
   end

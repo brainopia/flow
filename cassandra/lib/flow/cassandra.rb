@@ -59,8 +59,7 @@ module Flow::Cassandra
       # end
 
       ring = Flow::Cassandra.ring catalog.keyspace_name
-      router = Flow::Queue::Router.new *ring.local_queues do |message|
-        data = message[:data]
+      router = Flow::Queue::Router.new *ring.local_queues do |_,_,data|
         key_data = key data
         if key_data.values.all?
           token = catalog.token_for key_data
