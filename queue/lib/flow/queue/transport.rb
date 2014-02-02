@@ -13,6 +13,6 @@ class Flow::Queue::Transport < Flow::Queue::Route
 
   def handler((name, type, data))
     action = REGISTRY.fetch name
-    action.propagate_next type, data
+    action.propagate_next type.to_sym, data
   end
 end

@@ -25,7 +25,7 @@ class Flow::Queue::Route < Flow::Action
   end
 
   def handler((type, data))
-    propagate_next type, data
+    propagate_next type.to_sym, data
   end
 
   def registry_key
