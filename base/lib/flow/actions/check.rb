@@ -6,7 +6,7 @@ class Flow::Action::Check < Flow::Action
 
   def transform(type, data)
     if not @type or @type == type
-      @callback.call data
+      @callback.call data, type
     end
     data
   end

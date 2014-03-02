@@ -58,7 +58,7 @@ class Flow::Cassandra::MatchTime < Flow::Action
             not it[:matched_time] or it[:matched_time].send(sign, matched_time)
           end
         end
-  
+
         records.each do |record|
           prepare = { result: record[:action_result], time: record[:source_time] }
           prepare[:match] = data unless interval
@@ -68,7 +68,7 @@ class Flow::Cassandra::MatchTime < Flow::Action
         unless interval
           records.select! {|it| it[:matched_time].to_i == matched_time.to_i }
         end
-  
+
         records.each do |record|
           prepare = { result: record[:action_result], time: record[:source_time] }
           match_time :insert, key, record[:action_data], prepare
