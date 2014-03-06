@@ -1,28 +1,22 @@
 class Flow::Error < StandardError
-  attr_reader :cause
+  attr_reader :cause, :locations
   # Support honeybadger until they merge my PR
   alias original_exception cause
 
   def initialize(location, error=$!)
     @cause     = error
-    @locations = [format(location)]
+    @locations = [location]
   end
 
   def backtrace
-    @locations + cause.backtrace
+    formatted_locations + cause.backtrace
   end
 
   def message
     cause.message
   end
 
-  def prepend_location(location)
-    @locations.push format location
-  end
-
-  private
-
-  def format(location)
-    "(flow: #{location})"
+  def formatted_locations
+    locations.map {|it| "(flow: #{it})" }
   end
 end

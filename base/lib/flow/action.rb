@@ -67,7 +67,7 @@ class Flow::Action
         begin
           action.propagate type, it.dup
         rescue Flow::Error
-          $!.prepend_location action.location
+          $!.locations.push action.location
           raise
         rescue
           raise Flow::Error.new(action.location)
