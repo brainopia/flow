@@ -70,7 +70,7 @@ class Flow::Action
           $!.prepend_location action.location
           raise
         rescue
-          raise Flow::Error.new(action.location, $!)
+          raise Flow::Error.new(action.location)
         end
       end
     end
