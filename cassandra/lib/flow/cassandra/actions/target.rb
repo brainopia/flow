@@ -15,9 +15,9 @@ class Flow::Cassandra::Target < Flow::Action
     when :insert, :remove
       mapper.send type, data
     when :check
-      key = self.key data
-      objects = mapper.get key
-      log_inspect key
+      key_value = key data
+      objects = mapper.get key_value
+      log_inspect key_value
       log_inspect objects
       data
     else
@@ -28,7 +28,7 @@ class Flow::Cassandra::Target < Flow::Action
   private
 
   def key(data)
-    target.config.key.each_with_object({}) do |field, result|
+    mapper.config.key.each_with_object({}) do |field, result|
       result[field] = data[field]
     end
   end
