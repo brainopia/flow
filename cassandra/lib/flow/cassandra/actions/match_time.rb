@@ -74,6 +74,18 @@ class Flow::Cassandra::MatchTime < Flow::Action
           match_time :insert, key, record[:action_data], prepare
         end
       when :check
+        unless interval
+          records.select! {|it| it[:matched_time].to_i == matched_time.to_i }
+        end
+
+        log_inspect :secondary
+        log_inspect data
+        log_inspect records
+
+        records.each do |record|
+          prepare = { result: record[:action_result], time: record[:source_time] }
+          match_time :check, key, record[:action_data], prepare
+        end
       else
         raise UnknownType, type
       end
@@ -151,7 +163,10 @@ class Flow::Cassandra::MatchTime < Flow::Action
 
     previous_result = prepared_data.fetch(:result, false)
     if result != previous_result
-      propagate_next :remove, previous_result if previous_result
+      if previous_result and type != :check
+        propagate_next :remove, previous_result 
+      end
+
       propagate_next type, result
     end
   end

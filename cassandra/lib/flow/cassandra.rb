@@ -59,9 +59,9 @@ module Flow::Cassandra
       # end
 
       ring = Flow::Cassandra.ring catalog.keyspace_name
-      router = Flow::Queue::Router.new *ring.local_queues do |_,_,data|
+      router = Flow::Queue::Router.new *ring.local_queues do |_,type,data|
         key_data = key data
-        if key_data.values.all?
+        if key_data.values.all? and type != :check
           token = catalog.token_for key_data
           ring.determine_queue token
         end

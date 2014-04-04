@@ -72,6 +72,8 @@ class Flow::Cassandra::Merge < Flow::Action
 
   def check(data, scope_value, previous, all)
     log_inspect scope_value
+    log_inspect data
+    log_inspect previous
     log_inspect all
     propagate_next :check, previous
   end

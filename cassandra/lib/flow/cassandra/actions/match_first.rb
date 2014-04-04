@@ -51,6 +51,17 @@ class Flow::Cassandra::MatchFirst < Flow::Action
           match_first :insert, key, record[:action_data]
         end
       when :check
+        subkey = select(:subkey, data)
+        records = catalog.get key.merge(subkey)
+
+        log_inspect :secondary
+        log_inspect data
+        log_inspect subkey
+        log_inspect records
+
+        records.each do |record|
+          match_first :check, key, record[:action_data]
+        end
       else
         raise UnknownType, type
       end

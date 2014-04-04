@@ -19,6 +19,7 @@ class Flow::Cassandra::Target < Flow::Action
       objects = mapper.get key
       log_inspect key
       log_inspect objects
+      data
     else
       raise UnknownType, type
     end
