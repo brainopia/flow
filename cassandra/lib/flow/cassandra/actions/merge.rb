@@ -2,8 +2,8 @@ class Flow::Cassandra::Merge < Flow::Action
   include Flow::Cassandra
   attr_reader :scope, :callback, :catalog
 
-  FIRST_BACKUP = 4
-  LAST_BACKUP  = 6
+  FIRST_BACKUP = 20
+  LAST_BACKUP  = 30
   LIMIT_BACKUP = FIRST_BACKUP + LAST_BACKUP
 
   def setup!(scope, &callback)
@@ -44,29 +44,32 @@ class Flow::Cassandra::Merge < Flow::Action
     end
 
     update = callback.call data, previous
-    catalog.insert scope: scope_value, data: update, all: all
 
     if previous != update
       propagate_next :remove, previous
       propagate_next :insert, update
     end
+
+    catalog.insert scope: scope_value, data: update, all: all
   end
 
   def remove(data, scope_value, previous, all)
     return unless all.index data
-
     all.delete_at all.index(data)
-    update = all.inject(nil) {|previous, it| callback.call(it, previous) }
+
+    update = all.inject(nil) do |previous, it|
+      callback.call it, previous
+    end
+
+    if previous != update
+      propagate_next :remove, previous
+      propagate_next :insert, update
+    end
 
     if all.empty?
       catalog.remove scope: scope_value
     else
       catalog.insert scope: scope_value, data: update, all: all
-    end
-
-    if previous != update
-      propagate_next :remove, previous
-      propagate_next :insert, update
     end
   end
 

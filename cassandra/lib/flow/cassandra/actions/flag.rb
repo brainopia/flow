@@ -2,7 +2,7 @@ class Flow::Cassandra::Flag < Flow::Action
   include Flow::Cassandra
   attr_reader :flag, :scope, :condition, :catalog
 
-  LIMIT_HISTORY = 10
+  LIMIT_HISTORY = 50
 
   def setup!(name, scope, &condition)
     @flag      = name or raise ArgumentError
@@ -15,7 +15,7 @@ class Flow::Cassandra::Flag < Flow::Action
     prepend_router
   end
 
-  def transform(type, data)
+  def propagate(type, data)
     scope_value = scope_value_for data
 
     record   = catalog.one(scope: scope_value) || {}
@@ -45,11 +45,7 @@ class Flow::Cassandra::Flag < Flow::Action
     end
 
     if reflag
-      catalog.insert scope: scope_value, data: data, all: all
-      data = data.dup
-      data[flag] = true
-    else
-      catalog.insert scope: scope_value, data: previous, all: all
+      flagged_data = data.merge flag => true
     end
 
     if reflag and previous
@@ -57,29 +53,36 @@ class Flow::Cassandra::Flag < Flow::Action
       propagate_next :insert, previous
     end
 
-    data
+    if reflag
+      propagate_next :insert, flagged_data
+      catalog.insert scope: scope_value, data: data, all: all
+    else
+      propagate_next :insert, data
+      catalog.insert scope: scope_value, data: previous, all: all
+    end
   end
 
   def remove(data, scope_value, previous, all)
-    if all.delete data
-      if data == previous
-        data = data.dup
-        data[flag] = true
+    return unless all.index data
+    all.delete_at all.index(data)
 
-        new_data = all.sort {|a,b| condition.call(a,b) ? -1 : 1 }.first
-        if new_data
-          propagate_next :remove, new_data
-          catalog.insert scope: scope_value, data: new_data, all: all
-          propagate_next :insert, new_data.merge(flag => true)
-        else
-          catalog.remove scope: scope_value
-        end
+    if data == previous
+      flagged_data = data.merge flag => true
+      propagate_next :remove, flagged_data
+
+      new_data = all.sort {|a,b| condition.call(a,b) ? -1 : 1 }.first
+
+      if new_data
+        propagate_next :remove, new_data
+        propagate_next :insert, new_data.merge(flag => true)
+        catalog.insert scope: scope_value, data: new_data, all: all
       else
-        catalog.insert scope: scope_value, data: previous, all: all
+        catalog.remove scope: scope_value
       end
+    else
+      propagate_next :remove, data
+      catalog.insert scope: scope_value, data: previous, all: all
     end
-
-    data
   end
 
   def check(data, scope_value, previous, all)
@@ -90,7 +93,7 @@ class Flow::Cassandra::Flag < Flow::Action
       data = data.merge flag => true
     end
 
-    data
+    propagate_next :check, data
   end
 
   def build_catalog

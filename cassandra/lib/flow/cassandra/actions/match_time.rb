@@ -104,70 +104,72 @@ class Flow::Cassandra::MatchTime < Flow::Action
     source_time = prepared_data[:time] || data[source_field]
     error! "missing :#{source_field} in #{data.inspect}" unless source_time
 
-    case type
-    when :insert
-      if prepared_data[:match]
-        matched = prepared_data[:match]
-      else
-        query = if match_after?
-            { start: { matched_field => source_time }}
-          else
-            # slice :after in reverse means to match including current record
-            { reversed: true, start: { matched_field => source_time, slice: :after }}
-          end
-        if interval
-          query[:finish] = { matched_field => source_time + interval }
-          matched = mapper.get key, query
+    catalog.keyspace.batch do
+      case type
+      when :insert
+        if prepared_data[:match]
+          matched = prepared_data[:match]
         else
-          matched = mapper.one key, query
+          query = if match_after?
+              { start: { matched_field => source_time }}
+            else
+              # slice :after in reverse means to match including current record
+              { reversed: true, start: { matched_field => source_time, slice: :after }}
+            end
+          if interval
+            query[:finish] = { matched_field => source_time + interval }
+            matched = mapper.get key, query
+          else
+            matched = mapper.one key, query
+          end
+
+          if interval and not match_after?
+            matched.reverse!
+          end
         end
 
-        if interval and not match_after?
-          matched.reverse!
+        result = callback.call data, matched
+
+        if matched and not interval
+          matched_time = matched[matched_field]
+        end
+
+        catalog_record = key
+        catalog_record.merge! \
+          action_data:    data,
+          action_result:  result,
+          matched_time:   matched_time,
+          source_time:    source_time
+        catalog.insert catalog_record
+      when :remove
+        all = catalog.get key
+        found = all.find {|it| it[:action_data] == data }
+
+        if found
+          result = found[:action_result]
+          catalog.remove found
+        end
+      when :check
+        all = catalog.get key
+        found = all.find {|it| it[:action_data] == data }
+
+        log_inspect key
+        log_inspect found
+        log_inspect all
+
+        if found
+          result = found[:action_result]
         end
       end
 
-      result = callback.call data, matched
+      previous_result = prepared_data.fetch(:result, false)
+      if result != previous_result
+        if previous_result and type != :check
+          propagate_next :remove, previous_result 
+        end
 
-      if matched and not interval
-        matched_time = matched[matched_field]
+        propagate_next type, result
       end
-
-      catalog_record = key
-      catalog_record.merge! \
-        action_data:    data,
-        action_result:  result,
-        matched_time:   matched_time,
-        source_time:    source_time
-      catalog.insert catalog_record
-    when :remove
-      all = catalog.get key
-      found = all.find {|it| it[:action_data] == data }
-
-      if found
-        result = found[:action_result]
-        catalog.remove found
-      end
-    when :check
-      all = catalog.get key
-      found = all.find {|it| it[:action_data] == data }
-
-      log_inspect key
-      log_inspect found
-      log_inspect all
-
-      if found
-        result = found[:action_result]
-      end
-    end
-
-    previous_result = prepared_data.fetch(:result, false)
-    if result != previous_result
-      if previous_result and type != :check
-        propagate_next :remove, previous_result 
-      end
-
-      propagate_next type, result
     end
   end
 

@@ -29,26 +29,32 @@ class Flow::Cassandra::MatchFirst < Flow::Action
       case type
       when :insert
         subkey = select(:subkey, data)
+        # may be slice after subkey?
         records = catalog.get key, start: subkey
 
         records.each do |record|
-          catalog.remove record
+          new_record = record.merge subkey
+          new_record[:action_result] = callback.call record[:action_data], data
+
           propagate_next :remove, record[:action_result]
+          propagate_next :insert, new_record[:action_result]
 
-          record[:action_result] = callback.call record[:action_data], data
-          record.merge! subkey
-
-          catalog.insert record
-          propagate_next :insert, record[:action_result]
+          catalog.keyspace.batch do
+            catalog.remove record
+            catalog.insert new_record
+          end
         end
       when :remove
         subkey = select(:subkey, data)
         records = catalog.get key.merge(subkey)
 
         records.each do |record|
-          catalog.remove record
           propagate_next :remove, record[:action_result]
-          match_first :insert, key, record[:action_data]
+
+          catalog.keyspace.batch do
+            catalog.remove record
+            match_first :insert, key, record[:action_data]
+          end
         end
       when :check
         subkey = select(:subkey, data)
@@ -83,6 +89,8 @@ class Flow::Cassandra::MatchFirst < Flow::Action
       subkey  = matched ? select(:subkey, matched) : max_subkey
       result  = callback.call data, matched
 
+      propagate_next :insert, result
+
       catalog_record = key
       catalog_record.merge! subkey
       catalog_record.merge! action_data: data, action_result: result
@@ -93,6 +101,7 @@ class Flow::Cassandra::MatchFirst < Flow::Action
 
       if found
         result = found[:action_result]
+        propagate_next :remove, result
         catalog.remove found
       end
     when :check
@@ -105,8 +114,6 @@ class Flow::Cassandra::MatchFirst < Flow::Action
       log_inspect found
       log_inspect all
     end
-
-    propagate_next type, result
   end
 
   def select(key_type, data)
