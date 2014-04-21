@@ -15,12 +15,14 @@ describe Flow::Cassandra::Target do
 
   it 'should insert records' do
     insert flow, person_1, person_2
+    scheduler.run
     mapper.all.should == [ person_1, person_2 ]
   end
 
   it 'should remove records' do
     insert flow, person_1, person_2
     remove flow, person_1
+    scheduler.run
     mapper.all.should == [ person_2 ]
   end
 end

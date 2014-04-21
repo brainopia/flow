@@ -21,6 +21,7 @@ describe Flow::Cassandra::Source do
       .cassandra_target(mapper)
       .trigger :insert, person
 
+    scheduler.run
     storage.should == [ person ]
   end
 
@@ -32,6 +33,9 @@ describe Flow::Cassandra::Source do
       .store storage
 
     target.trigger :insert, person
+
+
+    scheduler.run
     storage.should == [ person ]
   end
 end
