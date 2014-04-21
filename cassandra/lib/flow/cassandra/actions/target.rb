@@ -6,6 +6,10 @@ class Flow::Cassandra::Target < Flow::Action
 
   def setup!(mapper)
     if mapper.is_a? Cassandra::Mapper
+      unless mapper.config.before_insert.empty?
+        raise 'cassandra_target does not currently support callbacks'
+      end
+
       mapper.action :publisher, self
       @mapper = mapper
     else
@@ -18,10 +22,6 @@ class Flow::Cassandra::Target < Flow::Action
   end
 
   def propagate(type, data)
-    if [:insert, :check].include? type
-      mapper.config.before_insert.each {|it| it.call data }
-    end
-
     log = catalog.one data
 
     unless log
