@@ -7,7 +7,7 @@ class Flow::Cassandra::Target < Flow::Action
   def setup!(mapper)
     if mapper.is_a? Cassandra::Mapper
       unless mapper.config.before_insert.empty?
-        raise 'cassandra_target does not currently support callbacks'
+        raise 'cassandra_target does not currently support before callbacks'
       end
 
       mapper.action :publisher, self
