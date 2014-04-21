@@ -1,3 +1,5 @@
+# TODO: how to replay a broken in the middle request
+# in case of uuid subkey with a passed time value?
 class Flow::Cassandra::Target < Flow::Action
   include Flow::Cassandra
   attr_reader :mapper, :catalog
@@ -16,6 +18,10 @@ class Flow::Cassandra::Target < Flow::Action
   end
 
   def propagate(type, data)
+    if [:insert, :check].include? type
+      mapper.config.before_insert.each {|it| it.call data }
+    end
+
     log = catalog.one data
 
     unless log
