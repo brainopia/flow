@@ -10,6 +10,7 @@ class Flow::Cassandra::Target < Flow::Action
       raise ArgumentError, "bad target: #{mapper}"
     end
 
+    extend_name mapper.table
     build_catalog
     prepend_router
   end
