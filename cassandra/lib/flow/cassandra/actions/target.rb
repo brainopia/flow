@@ -61,10 +61,14 @@ class Flow::Cassandra::Target < Flow::Action
           mapper.remove data
           new_data = log[:data] = log[:inserts].last
           mapper.insert new_data if new_data
+
+          propagate_next :remove, converted_data
+          new_data ? catalog.insert(log) : catalog.remove(log)
+        else
+          propagate_next :remove, converted_data
+          catalog.insert log
         end
 
-        propagate_next :remove, converted_data
-        catalog.insert log
       else
         propagate_next :remove, converted_data
       end
