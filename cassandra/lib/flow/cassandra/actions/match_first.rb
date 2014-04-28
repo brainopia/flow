@@ -97,7 +97,11 @@ class Flow::Cassandra::MatchFirst < Flow::Action
       catalog.insert catalog_record
     when :remove
       all = catalog.get(key)
-      found = all.find {|it| it[:action_data] == data }
+      found = if data[:_id]
+        all.find {|it| it[:action_data][:_id] == data[:_id] }
+      else
+        all.find {|it| it[:action_data] == data }
+      end
 
       if found
         result = found[:action_result]
