@@ -51,6 +51,10 @@ class Flow::Cassandra::MatchFirst < Flow::Action
         records.each do |record|
           propagate_next :remove, record[:action_result]
 
+          if data[:_id] and data[:_id] == record[:action_data][:_id]
+            next
+          end
+
           catalog.keyspace.batch do
             catalog.remove record
             match_first :insert, key, record[:action_data]

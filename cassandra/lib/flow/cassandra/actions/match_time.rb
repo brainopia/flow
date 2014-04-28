@@ -71,7 +71,12 @@ class Flow::Cassandra::MatchTime < Flow::Action
 
         records.each do |record|
           prepare = { result: record[:action_result], time: record[:source_time] }
-          match_time :insert, key, record[:action_data], prepare
+
+          if data[:_id] and data[:_id] == record[:action_data][:_id]
+            propagate_next :remove, record[:action_result]
+          else
+            match_time :insert, key, record[:action_data], prepare
+          end
         end
       when :check
         unless interval
