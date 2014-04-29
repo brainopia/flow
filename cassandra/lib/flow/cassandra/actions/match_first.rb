@@ -36,8 +36,10 @@ class Flow::Cassandra::MatchFirst < Flow::Action
           new_record = record.merge subkey
           new_record[:action_result] = callback.call record[:action_data], data
 
-          propagate_next :remove, record[:action_result]
-          propagate_next :insert, new_record[:action_result]
+          if new_record[:action_result] != record[:action_result]
+            propagate_next :remove, record[:action_result]
+            propagate_next :insert, new_record[:action_result]
+          end
 
           catalog.keyspace.batch do
             catalog.remove record
