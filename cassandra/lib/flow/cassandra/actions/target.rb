@@ -41,7 +41,7 @@ class Flow::Cassandra::Target < Flow::Action
       log[:inserts] << data
       log[:data] = data
 
-      if previous and previous.keys.any? {|key| not data.keys.include? key }
+      if previous and previous.keys.any? {|key| not data[key] }
         mapper.remove previous
       end
 
