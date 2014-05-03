@@ -107,6 +107,12 @@ class Flow::Cassandra::MatchTime < Flow::Action
 
   def match_time(type, key, data, prepared_data={})
     source_time = prepared_data[:time] || data[source_field]
+
+    if source_time.uuid and not prepared_data[:time]
+      source_time = source_time.dup
+      source_time.uuid = nil
+    end
+
     error! "missing :#{source_field} in #{data.inspect}" unless source_time
 
     catalog.keyspace.batch do
