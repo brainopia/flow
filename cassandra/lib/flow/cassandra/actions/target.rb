@@ -29,8 +29,7 @@ class Flow::Cassandra::Target < Flow::Action
       log.merge! key(data)
       log.merge! subkey(data)
 
-      log[:data]        = mapper.one data
-      log[:inserts]     = [log[:data]].compact
+      log[:inserts]     = []
       log[:compactions] = 0
     end
 
